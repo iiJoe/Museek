@@ -1,0 +1,11 @@
+logs
+target
+/.bsp
+/.g8
+/.metals
+/.idea
+/.idea_modules
+/.classpath
+/.project
+/.settings
+/RUNNING_PID

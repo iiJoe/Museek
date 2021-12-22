@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 1em;
+    border-radius: 10px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+}
+
+.content > div {
+    margin: 1em 0;
+}
+
+.btn-click {
+    align-self: flex-start;
+    cursor: pointer;
+    padding: 1em;
+    font-weight: 700;
+    background-color: #2185d0;
+    color: white;
+    border-radius: 5px;
+    text-align: center;
+}
