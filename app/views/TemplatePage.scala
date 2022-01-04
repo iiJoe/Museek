@@ -16,6 +16,10 @@ trait TemplatePage {
   private def currentYear = LocalDate.now().getYear()
   def vueJS: Boolean = false
 
+  def semanticUiCSS = "stylesheets/semantic.min.css"
+  //requries jQuery
+  def semanticUiJS = "javascripts/semantic.min.js"
+
   def page(): Tag = {
     html(
       head(
@@ -30,7 +34,7 @@ trait TemplatePage {
           div(cls:= "template-nav")(
             a(cls:= "nav-action", href:= "")(
               div(cls:= "template-logo"),
-              div(cls:= "template-title")("Canvas")
+              div(cls:= "template-title")("Music")
             ),
             a(cls:= "nav-action", href:= "")("Home"),
             a(cls:= "nav-action", href:= "")("Not Home"),
@@ -47,6 +51,7 @@ trait TemplatePage {
           )
         ),
         //Vue
+        //TODO download locally
         if(vueJS) script(src := "https://unpkg.com/vue@3.2.6", tpe := "text/javascript"),
 
         javascripts.map(js =>

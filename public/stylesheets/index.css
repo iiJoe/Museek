@@ -1,4 +1,4 @@
-.container {
+.page-container {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -7,22 +7,43 @@
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 
-.content {
+.page-content {
     display: flex;
     flex-direction: column;
 }
 
-.content > div {
+.page-content > div {
     margin: 1em 0;
 }
 
-.btn-click {
-    align-self: flex-start;
-    cursor: pointer;
+.search-filter {
+    border: 1px solid;
     padding: 1em;
-    font-weight: 700;
-    background-color: #2185d0;
-    color: white;
-    border-radius: 5px;
-    text-align: center;
+    background-color: #f5f5f5;
+}
+
+.songs-list {
+    display: grid;
+    grid-template-columns: 1fr 3fr 2fr 1fr;
+    align-items: center;
+    column-gap: 1em;
+    row-gap: 1em;
+}
+
+
+.songs-header {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+
+.songs-content {
+    border: 1px solid;
+    /* padding: 0.5em 0; */
+}
+
+.grid-test {
+    grid-row-start: 2;
+    grid-row-end: 4;
+    grid-column-start: span 2;
 }
