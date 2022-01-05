@@ -16,7 +16,7 @@ trait TemplatePage {
   private def currentYear = LocalDate.now().getYear()
   def vueJS: Boolean = false
 
-  def semanticUiCSS = "stylesheets/semantic.min.css"
+  def appliedStylesheets = "stylesheets/semantic.min.css" +: stylesheets
   //requries jQuery
   def semanticUiJS = "javascripts/semantic.min.js"
 
@@ -25,14 +25,14 @@ trait TemplatePage {
       head(
         scalatags.Text.tags2.title(pageTitle),
         link(rel := "stylesheet", href := routes.Assets.versioned("stylesheets/template.css").url, tpe := "text/css"),
-        stylesheets.map(stylesheet =>
+        appliedStylesheets.map(stylesheet =>
           link(rel := "stylesheet", href := routes.Assets.versioned(stylesheet).url, tpe := "text/css")
         ),
       ),
       body(
         div(cls:= "template")(
           div(cls:= "template-nav")(
-            a(cls:= "nav-action", href:= "")(
+            a(cls:= "nav-action", href:= "/")(
               div(cls:= "template-logo"),
               div(cls:= "template-title")("Music")
             ),

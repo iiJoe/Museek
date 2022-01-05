@@ -5,6 +5,8 @@
 
 # Web Pages
 GET     /                           controllers.HomeController.index()
+GET     /newSong                    controllers.SongController.newSong()
+GET     /editSongs                  controllers.SongController.editSongs()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

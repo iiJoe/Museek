@@ -1,8 +1,9 @@
 function search() {
     const titleInput = document.getElementById("title").value
     const circleInput = document.getElementById("circle").value
+    const originalInput = document.getElementById("original").value
     //TODO song filtering
-    alert(`Title = ${titleInput} \nCircle = ${circleInput}`)
+    alert(`Title = ${titleInput} \nCircle = ${circleInput}\nOriginal = ${originalInput}`)
 }
 
 const name = document.getElementById("app").getAttribute("data-name")
@@ -31,7 +32,7 @@ const EventHandling = {
 
 Vue.createApp(EventHandling).mount('#app')
 
-const songElems = Array.from(document.getElementsByClassName("songs-content"))
+// const songElems = Array.from(document.getElementsByClassName("songs-content"))
 
-const songsAttr = songElems.map(elem => elem.getAttribute("data-name"))
-songsAttr.forEach(elem => console.log(elem))
+// const songsAttr = songElems.map(elem => elem.getAttribute("data-name"))
+// songsAttr.forEach(elem => console.log(elem))
