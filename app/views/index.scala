@@ -1,6 +1,5 @@
 package views
 
-import play.api._
 import play.api.mvc._
 import scalatags.Text.all._
 import scala.io.Source
