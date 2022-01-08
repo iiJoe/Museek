@@ -6,33 +6,15 @@ import play.api.data.Forms._
 import scalatags.Text.all._
 import models.Song
 
-case class NewSongPage(songForm: Form[Song])(implicit request: RequestHeader) extends TemplatePage {
+case class EditSongPage(songForm: Form[Song], songId: Int)(implicit request: RequestHeader) extends TemplatePage {
 
-  def pageTitle = "New Song"
+  def pageTitle = "Edit Song"
   override def stylesheets = Seq("stylesheets/newSong.css")
-
-  // TODO figure out close button on error message
-  def errMsg: Tag =
-    div(cls := "ui error message")(
-      i(cls := "close icon"),
-      div(cls := "header")(
-        "Errors in form submission"
-      ),
-      ul(cls := "list")(
-        songForm.errors.map(err =>
-          li(
-            err.key, " ",
-            err.message, " "
-          ),
-        )
-      )
-    )
 
   def content: Tag =
     div(cls:= "page-container")(
       h1(pageTitle),
-      if(songForm.hasErrors) errMsg,
-      pForm(controllers.routes.SongController.createSong(), cls := "ui form")(
+      pForm(controllers.routes.SongController.updateSong(songId), cls := "ui form")(
         div(cls := "field")(
           label("Circle"),
           pInput(songForm("circle"))
@@ -47,13 +29,14 @@ case class NewSongPage(songForm: Form[Song])(implicit request: RequestHeader) ex
         ),
         div(cls := "field")(
           label("File"),
-          pInput(songForm("file"))
+          pInput(songForm("file"), readonly)
         ),
         div(cls := "field")(
           label("YT Link"),
           pInput(songForm("ytLink"))
         ),
-        button(cls := "ui button", tpe := "submit")("Create")
+        button(cls := "ui button", tpe := "submit")("Edit")
       )
     )
 }
+

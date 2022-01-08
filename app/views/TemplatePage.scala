@@ -2,7 +2,9 @@ package views
 
 import controllers._
 import play.api._
+import play.api.data._
 import play.api.mvc._
+import play.filters.csrf._
 import scalatags.Text.all._
 import java.time.LocalDate
 
@@ -14,11 +16,9 @@ trait TemplatePage {
   def javascripts: Seq[String] = Seq.empty
 
   private def currentYear = LocalDate.now().getYear()
-  def vueJS: Boolean = false
 
   def appliedStylesheets = "stylesheets/semantic.min.css" +: stylesheets
-  //requries jQuery
-  def semanticUiJS = "javascripts/semantic.min.js"
+  def appliedjavascripts = Seq("javascripts/jquery-3.6.0.min.js", "javascripts/semantic.min.js") ++ javascripts
 
   def page(): Tag = {
     html(
@@ -36,9 +36,7 @@ trait TemplatePage {
               div(cls:= "template-logo"),
               div(cls:= "template-title")("Music")
             ),
-            a(cls:= "nav-action", href:= "")("Home"),
-            a(cls:= "nav-action", href:= "")("Not Home"),
-            a(cls:= "nav-action", href:= "")("About")
+            a(cls:= "nav-action", href:= "https://touhou.arrangement-chronicle.com/")("Touhou")
           ),
           div(cls:= "template-body")(
             content
@@ -50,14 +48,31 @@ trait TemplatePage {
             )
           )
         ),
-        //Vue
-        //TODO download locally
-        if(vueJS) script(src := "https://unpkg.com/vue@3.2.6", tpe := "text/javascript"),
 
-        javascripts.map(js =>
+        appliedjavascripts.map(js =>
           script(src := routes.Assets.versioned(js).url, tpe := "text/javascript")
         ),
       )
     )
   }
+
+
+  def csrfToken(implicit request: RequestHeader) =
+    CSRF.getToken match {
+      case Some(token) => token.value
+      case _ => ""
+    }
+
+
+  def pForm(call: Call, attrs: AttrPair*)(body: Modifier*)(implicit request: RequestHeader) = {
+    form(action := call.url, method := call.method, attrs)(
+      input(tpe := "hidden", name := "csrfToken", value := csrfToken),
+      body
+    )
+  }
+
+  def pInput(field: Field, attrs: AttrPair*) =
+    input(tpe := "text", name := field.name, field.value.map(value := _), attrs)
+
 }
+

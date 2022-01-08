@@ -2,23 +2,13 @@ package views
 
 import play.api.mvc._
 import scalatags.Text.all._
-import scala.io.Source
+import models.Song
 
-case class Index() extends TemplatePage {
+case class Index(songs: List[Song]) extends TemplatePage {
 
   def pageTitle = "Songs List"
   override def stylesheets = Seq("stylesheets/index.css")
-  override def javascripts = Seq("javascripts/index.js")
-
-  override def vueJS = true
-
-  val home = System.getProperty("user.home")
-  val lines =  Source.fromFile(s"$home/Music/songs.txt").getLines().map(toSong).toList
-
-  def toSong(str: String) = {
-    val splitStr = str.split("\\|")
-    (splitStr(0), splitStr(1), splitStr(2), splitStr(3))
-  }
+  override def javascripts = Seq("javascripts/tablesort.js", "javascripts/index.js")
 
   def content: Tag =
     div(cls:= "page-container")(
@@ -43,30 +33,45 @@ case class Index() extends TemplatePage {
           ),
           div(cls := "ui submit button", onclick := "search()")("Search")
         ),
-        a(cls := "ui primary button", href := "/newSong")("Add"),
-        div(cls := "")("No. of Songs: ", lines.length),
+        div(cls := "list-header")(
+          div(cls := "")("No. of Songs: ", songs.length),
+          a(cls := "ui button", href := "/newSong")(
+            i(cls := "plus square icon"),
+            "Add"
+          )
+        ),
 
-        //TODO use semantic-ui table to sort
-        div(cls := "songs-list")(
-          div(cls := "songs-header")("Circle"),
-          div(cls := "songs-header")("Title"),
-          div(cls := "songs-header")("Original"),
-          div(cls := "songs-header")("Links"),
-          lines.map(song =>
-            Seq(
-              div(cls := "songs-content")(song._1),
-              div(cls := "songs-content")(song._2),
-              div(cls := "songs-content")(if (song._3.trim.isEmpty) "-" else song._3),
-              div(cls := "songs-content")(
-                a(cls := "btn btn-yt", href := "https://www.youtube.com/")(
-                  i(cls := "large youtube icon"),
-                  // song._4
+        table(cls := "ui sortable striped table")(
+          thead(
+            tr(
+              th("Circle"),
+              th("Title"),
+              th("Original"),
+              th("Links"),
+            )
+          ),
+          tbody(
+            songs.map(song =>
+              tr(
+                td(if (song.circle.trim.isEmpty) "-" else song.circle),
+                td(song.title),
+                td(
+                  if (song.original.trim.isEmpty) "-"
+                  else
+                    song.original.split(",").map(div(_))
+                ),
+                td(
+                  a(cls := "btn btn-edit", href := controllers.routes.SongController.editSong(song.id).url)(
+                    i(cls := "large edit icon"),
+                  ),
+                  a(cls := "btn btn-yt", href := song.ytLink)(
+                    i(cls := "large youtube icon"),
+                  )
                 )
               )
             )
           )
-        ),
-        div(cls := "ui button")("Button")
+        )
       )
     )
 }
