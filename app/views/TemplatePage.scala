@@ -34,7 +34,7 @@ trait TemplatePage {
           div(cls:= "template-nav")(
             a(cls:= "nav-action", href:= "/")(
               div(cls:= "template-logo"),
-              div(cls:= "template-title")("Music")
+              div(cls:= "template-title")("Museek")
             ),
             a(cls:= "nav-action", href:= "https://touhou.arrangement-chronicle.com/")("Touhou")
           ),

@@ -61,11 +61,13 @@ case class Index(songs: List[Song]) extends TemplatePage {
                     song.original.split(",").map(div(_))
                 ),
                 td(
-                  a(cls := "btn btn-edit", href := controllers.routes.SongController.editSong(song.id).url)(
-                    i(cls := "large edit icon"),
-                  ),
-                  a(cls := "btn btn-yt", href := song.ytLink)(
-                    i(cls := "large youtube icon"),
+                  div(cls := "song-btns")(
+                    a(cls := "btn btn-edit", href := controllers.routes.SongController.editSong(song.id).url)(
+                      i(cls := "edit icon"),
+                    ),
+                    a(cls := "btn btn-yt", href := song.ytLink)(
+                      i(cls := "youtube icon"),
+                    )
                   )
                 )
               )
