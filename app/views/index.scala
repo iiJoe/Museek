@@ -40,8 +40,9 @@ case class Index(songs: List[Song]) extends TemplatePage {
             "Add"
           )
         ),
+        h1(b("TODO Change this horrendous color scheme")), // TODO delete this when done
 
-        table(cls := "ui sortable striped table")(
+        table(cls := "ui inverted sortable striped table")(
           thead(
             tr(
               th("Circle"),

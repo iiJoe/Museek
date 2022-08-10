@@ -6,6 +6,7 @@ target
 /.idea
 /.idea_modules
 /.classpath
-/.project
+/project/
 /.settings
+/.bloop
 /RUNNING_PID

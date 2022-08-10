@@ -22,10 +22,16 @@ class SongController @Inject()(val controllerComponents: ControllerComponents) e
     )(Song.apply)(Song.unapply)
   )
 
-  val home = System.getProperty("user.home")
+  implicit val songRW = upickle.default.macroRW[Song]
+  val songsPath = os.pwd / "public" / "songs.json"
+
 
   def listSongs() = Action { implicit request: Request[AnyContent] =>
-    val songs =  Source.fromFile(s"$home/Music/songs.txt").getLines().zipWithIndex.map(toSong).toList
+    // TODO Retrieve message from request.body to show success / error message on index page?
+    // Look into Se-UI message
+    val file = os.read(songsPath)
+    val songs = upickle.default.read[List[Song]](file)
+
     Ok(views.Index(songs).page())
   }
 
@@ -39,27 +45,41 @@ class SongController @Inject()(val controllerComponents: ControllerComponents) e
         BadRequest(views.NewSongPage(formWithErrors).page())
       },
       formData => {
+        // Retrieving list of songs
+        val file = os.read(os.pwd / "public" / "songs.json")
+        val songs = upickle.default.read[List[Song]](file)
+
+        // Adding new song
         val song = models.Song(formData.circle, formData.title, formData.original, formData.file, formData.ytLink)
+        val newSongs = songs :+ song
 
-        val circle = if (song.circle.trim.nonEmpty) song.circle else " "
-        val original = if (song.original.trim.nonEmpty) song.original else " "
-        val file = if (song.file.trim.nonEmpty) song.file else " "
-        val ytLink = if (song.ytLink.trim.nonEmpty) song.ytLink else " "
+        // Writing to json file
+        val json = upickle.default.write(newSongs, indent = 4);
+        os.remove(songsPath)
+        os.write(songsPath, json)
 
-        val fw = new FileWriter(s"$home/Music/songs.txt", true)
-
-        fw.write(s"$circle|${song.title}|$original|$file|$ytLink")
-        fw.close()
         Redirect(routes.SongController.listSongs())
       }
     )
   }
 
   def editSong(id: Int) = Action { implicit request: Request[AnyContent] =>
-    val songs =  Source.fromFile(s"$home/Music/songs.txt").getLines().zipWithIndex.map(toSong).toList
-    val song = songs(id)
-    val filledForm = songForm.fill(song);
-    Ok(views.EditSongPage(filledForm, id).page())
+
+    implicit val songRW = upickle.default.macroRW[Song]
+
+    val file = os.read(os.pwd / "public" / "songs.json")
+    val songs = upickle.default.read[List[Song]](file)
+
+    songs.find(_.id == id) match {
+      case Some(song) => {
+        val filledForm = songForm.fill(song);
+        Ok(views.EditSongPage(filledForm, id).page())
+      }
+      case None => {
+        // TODO error message if song not found
+        Redirect(routes.SongController.listSongs())
+      }
+    }
   }
 
   def updateSong(id: Int) = Action { implicit request =>
@@ -70,21 +90,20 @@ class SongController @Inject()(val controllerComponents: ControllerComponents) e
       },
       formData => {
 
-        val songs =  Source.fromFile(s"$home/Music/songs.txt").getLines().zipWithIndex.map(toSong).toList
+        // Retrieving list of songs
+        val file = os.read(os.pwd / "public" / "songs.json")
+        val songs = upickle.default.read[List[Song]](file)
 
+        // Updating particular song
         val song = models.Song(formData.circle, formData.title, formData.original, formData.file, formData.ytLink, id)
+        val idx = songs.indexWhere(_.id == id)
+        val newSongs = songs.updated(idx, song)
 
-        val circle = if (song.circle.trim.nonEmpty) song.circle else " "
-        val original = if (song.original.trim.nonEmpty) song.original else " "
-        val file = if (song.file.trim.nonEmpty) song.file else " "
-        val ytLink = if (song.ytLink.trim.nonEmpty) song.ytLink else " "
+        // Writing to json file
+        val json = upickle.default.write(newSongs, indent = 4);
+        os.remove(songsPath)
+        os.write(songsPath, json)
 
-        val fw = new FileWriter(s"$home/Music/songs.txt")
-
-        val (left, right) = songs.splitAt(id)
-        ((left) ++ (song :: right.tail))
-          .foreach(s => fw.write(s"${s.circle}|${s.title}|${s.original}|${s.file}|${s.ytLink}\n"))
-        fw.close()
         Redirect(routes.SongController.listSongs())
       }
     )
