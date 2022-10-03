@@ -1,3 +1,10 @@
 package models
 
-case class Song(circle: String, title: String, original: String, file: String, ytLink: String, id: Int = -1)
+case class Song(
+  circle: String,
+  title: String,
+  original: List[String],
+  file: String,
+  sources: List[String],
+  id: Int
+)

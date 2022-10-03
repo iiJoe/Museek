@@ -43,7 +43,8 @@ body {
 .template-body {
     display: flex;
     flex-direction: row;
-    background-color: rgb(248, 248, 248);
+    background-color: rgb(34, 34, 34);
+    color: rgba(255, 255, 255, 0.9);
     margin: auto;
     width: 80%;
     padding: 2em 0;
@@ -54,7 +55,8 @@ body {
     display: flex;
     flex-direction: row;
     align-items: middle;
-    background-color: #f2f2f2;
+    background-color: rgb(22, 22, 22);
+    color: rgba(255, 255, 255, 0.9);
     width: 100%;
     height: 10vh;
 }

@@ -32,8 +32,8 @@ case class EditSongPage(songForm: Form[Song], songId: Int)(implicit request: Req
           pInput(songForm("file"), readonly)
         ),
         div(cls := "field")(
-          label("YT Link"),
-          pInput(songForm("ytLink"))
+          label("Source Links"),
+          pInput(songForm("sources"))
         ),
         button(cls := "ui button", tpe := "submit")("Edit")
       )

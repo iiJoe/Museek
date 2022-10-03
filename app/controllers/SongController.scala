@@ -15,9 +15,9 @@ class SongController @Inject()(val controllerComponents: ControllerComponents) e
     mapping(
       "circle" -> text,
       "title" -> nonEmptyText,
-      "original" -> text,
+      "original" -> list(text),
       "file" -> text,
-      "ytLink" -> text,
+      "sources" -> list(text),
       "id" -> default(number, -1)
     )(Song.apply)(Song.unapply)
   )
@@ -25,10 +25,7 @@ class SongController @Inject()(val controllerComponents: ControllerComponents) e
   implicit val songRW = upickle.default.macroRW[Song]
   val songsPath = os.pwd / "public" / "songs.json"
 
-
   def listSongs() = Action { implicit request: Request[AnyContent] =>
-    // TODO Retrieve message from request.body to show success / error message on index page?
-    // Look into Se-UI message
     val file = os.read(songsPath)
     val songs = upickle.default.read[List[Song]](file)
 
@@ -46,11 +43,11 @@ class SongController @Inject()(val controllerComponents: ControllerComponents) e
       },
       formData => {
         // Retrieving list of songs
-        val file = os.read(os.pwd / "public" / "songs.json")
+        val file = os.read(songsPath)
         val songs = upickle.default.read[List[Song]](file)
 
         // Adding new song
-        val song = models.Song(formData.circle, formData.title, formData.original, formData.file, formData.ytLink)
+        val song = models.Song(formData.circle, formData.title, formData.original, formData.file, formData.sources, songs.maxBy(_.id).id + 1)
         val newSongs = songs :+ song
 
         // Writing to json file
@@ -67,7 +64,7 @@ class SongController @Inject()(val controllerComponents: ControllerComponents) e
 
     implicit val songRW = upickle.default.macroRW[Song]
 
-    val file = os.read(os.pwd / "public" / "songs.json")
+    val file = os.read(songsPath)
     val songs = upickle.default.read[List[Song]](file)
 
     songs.find(_.id == id) match {
@@ -76,8 +73,7 @@ class SongController @Inject()(val controllerComponents: ControllerComponents) e
         Ok(views.EditSongPage(filledForm, id).page())
       }
       case None => {
-        // TODO error message if song not found
-        Redirect(routes.SongController.listSongs())
+        Redirect(routes.SongController.listSongs()).flashing("error" -> "Song not found. Unable to edit.")
       }
     }
   }
@@ -91,11 +87,11 @@ class SongController @Inject()(val controllerComponents: ControllerComponents) e
       formData => {
 
         // Retrieving list of songs
-        val file = os.read(os.pwd / "public" / "songs.json")
+        val file = os.read(songsPath)
         val songs = upickle.default.read[List[Song]](file)
 
         // Updating particular song
-        val song = models.Song(formData.circle, formData.title, formData.original, formData.file, formData.ytLink, id)
+        val song = models.Song(formData.circle, formData.title, formData.original, formData.file, formData.sources, id)
         val idx = songs.indexWhere(_.id == id)
         val newSongs = songs.updated(idx, song)
 
@@ -109,10 +105,24 @@ class SongController @Inject()(val controllerComponents: ControllerComponents) e
     )
   }
 
-  def toSong(tup: (String, Int)) = {
-    val (str, id) = tup
-    val splitStr = str.split("\\|")
-    Song(splitStr(0), splitStr(1), splitStr(2), splitStr(3), splitStr(4), id)
+  def deleteSong(id: Int) = Action { implicit request =>
+
+    // Retrieving list of songs
+    val file = os.read(songsPath)
+    val songs = upickle.default.read[List[Song]](file)
+
+    // Deleting particular song
+    val (deletedSong, newSongs) = songs.partition(_.id == id)
+
+    if (deletedSong.isEmpty) {
+      Redirect(routes.SongController.listSongs()).flashing("Error" -> "Song not found. Unable to delete")
+    }
+    else {
+      // Writing to json file
+      // val json = upickle.default.write(newSongs, indent = 4);
+      // os.remove(songsPath)
+      // os.write(songsPath, json)
+      Redirect(routes.SongController.listSongs()).flashing("success" -> s"Deleted ${deletedSong(0).title}")
+    }
   }
 }
-

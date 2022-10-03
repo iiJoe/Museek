@@ -4,7 +4,7 @@ import play.api.mvc._
 import scalatags.Text.all._
 import models.Song
 
-case class Index(songs: List[Song]) extends TemplatePage {
+case class Index(songs: List[Song])(implicit request: RequestHeader, flash: Flash) extends TemplatePage {
 
   def pageTitle = "Songs List"
   override def stylesheets = Seq("stylesheets/index.css")
@@ -14,9 +14,20 @@ case class Index(songs: List[Song]) extends TemplatePage {
     div(cls:= "page-container")(
       h1(pageTitle),
       div(cls := "page-content", id := "app", attr("data-name") := "Bob")(
-        div(cls := "ui form search-filter")(
+
+        if (flash.get("success").nonEmpty) div(cls := "ui success message")(
+          i(cls := "close icon"),
+          flash.get("success").get
+        ),
+
+        if (flash.get("error").nonEmpty) div(cls := "ui negative message")(
+          i(cls := "close icon"),
+          flash.get("error").get
+        ),
+
+        div(cls := "ui inverted form search-filter")(
           // TODO for search / accordion for search (?)
-          h2(cls := "ui dividing header")("Search"),
+          h2(cls := "ui inverted dividing header")("Search"),
           div(cls := "three fields")(
             div(cls := "field")(
               label("Title"),
@@ -34,13 +45,12 @@ case class Index(songs: List[Song]) extends TemplatePage {
           div(cls := "ui submit button", onclick := "search()")("Search")
         ),
         div(cls := "list-header")(
-          div(cls := "")("No. of Songs: ", songs.length),
+          div(cls := "songs-header")("No. of Songs: ", songs.length),
           a(cls := "ui button", href := "/newSong")(
             i(cls := "plus square icon"),
             "Add"
           )
         ),
-        h1(b("TODO Change this horrendous color scheme")), // TODO delete this when done
 
         table(cls := "ui inverted sortable striped table")(
           thead(
@@ -48,26 +58,53 @@ case class Index(songs: List[Song]) extends TemplatePage {
               th("Circle"),
               th("Title"),
               th("Original"),
-              th("Links"),
+              th("Sources"),
+              th("Actions")
             )
           ),
           tbody(
             songs.map(song =>
               tr(
+                // Delete Song Modal Popup
+                div(cls := "ui basic modal delete-modal", id := s"delete-modal-${song.id}")(
+                  div(cls := "ui icon header")(
+                    i(cls := "trash icon"),
+                    "Delete Song"
+                  ),
+                  div(cls := "content")(
+                    p(s"Are you sure you want to delete ${song.title} ?")
+                  ),
+                  pForm(controllers.routes.SongController.deleteSong(song.id))(
+                    div(cls := "actions")(
+                      div(cls := "ui red basic cancel inverted button")(
+                        i(cls := "remove icon"),
+                        "No"
+                      ),
+                      button(cls := "ui green ok inverted button", tpe := "submit")(
+                        i(cls := "checkmark icon"),
+                        "Yes"
+                      )
+                    )
+                  )
+                ),
+
                 td(if (song.circle.trim.isEmpty) "-" else song.circle),
                 td(song.title),
                 td(
-                  if (song.original.trim.isEmpty) "-"
-                  else
-                    song.original.split(",").map(div(_))
+                  if (song.original.isEmpty) div("-")
+                  else song.original.map(div(_))
+                ),
+                td(
+                  if (song.sources.isEmpty) div("-")
+                  else song.sources.map(source => a(href := source)("Link"))
                 ),
                 td(
                   div(cls := "song-btns")(
                     a(cls := "btn btn-edit", href := controllers.routes.SongController.editSong(song.id).url)(
                       i(cls := "edit icon"),
                     ),
-                    a(cls := "btn btn-yt", href := song.ytLink)(
-                      i(cls := "youtube icon"),
+                    a(cls := "btn btn-delete", onclick := s"deleteModal(${song.id})")(
+                      i(cls := "trash icon"),
                     )
                   )
                 )

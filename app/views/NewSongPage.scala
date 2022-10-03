@@ -50,8 +50,8 @@ case class NewSongPage(songForm: Form[Song])(implicit request: RequestHeader) ex
           pInput(songForm("file"))
         ),
         div(cls := "field")(
-          label("YT Link"),
-          pInput(songForm("ytLink"))
+          label("Source Links"),
+          pInput(songForm("sources"))
         ),
         button(cls := "ui button", tpe := "submit")("Create")
       )

@@ -9,6 +9,8 @@ GET     /newSong                    controllers.SongController.newSong()
 POST    /newSong                    controllers.SongController.createSong()
 GET     /editSong/:id               controllers.SongController.editSong(id: Int)
 POST    /editSong/:id               controllers.SongController.updateSong(id: Int)
+POST    /deleteSong/:id             controllers.SongController.deleteSong(id: Int)
+
 
 
 # Map static resources from the /public folder to the /assets URL path
